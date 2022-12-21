@@ -128,6 +128,12 @@ Contributors
 Change Log
 --------------------------------------------------
 
+    2022 12 02 - 1.12
+      Fork: smcclosr to use (ffmpeg.exe) instead of (lame.exe) for the following functions:
+    - **WAV2MP3**   WAV to MP3 (lame)
+    - **MP32WAV**   MP3 to WAV  (lame)
+    - **FLAC2MP3**  FLAC to WAV (flac)   then WAV to MP3  (lame) 
+    
     2022 10 28 - 1.11
       Updated: MP3 encoder (lame.exe) to version 3.100.1
 
