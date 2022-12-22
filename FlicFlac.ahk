@@ -102,16 +102,18 @@ Init:
   
   IniRead ApeCompression,  %IniFile%, APE, Compression, 2000
   
-  IniRead CleanupOnExit,   %IniFile%, Advanced, CleanupOnExit
-  IniRead FlacOptions,     %IniFile%, Advanced, FlacOptions
-  IniRead FlacOptionsDec,  %IniFile%, Advanced, FlacOptionsDec
-  IniRead LameOptionsCBR,  %IniFile%, Advanced, LameOptionsCBR
-  IniRead LameOptionsVBR,  %IniFile%, Advanced, LameOptionsVBR
-  IniRead LameOptionsDec,  %IniFile%, Advanced, LameOptionsDec
-  IniRead OggOptions,      %IniFile%, Advanced, OggOptions
-  IniRead OggOptionsDec,   %IniFile%, Advanced, OggOptionsDec
-  IniRead FaadOptions,     %IniFile%, Advanced, FaadOptions
-  IniRead TempFolder,      %IniFile%, Advanced, TempFolder
+  IniRead CleanupOnExit,    %IniFile%, Advanced, CleanupOnExit
+  IniRead FlacOptions,      %IniFile%, Advanced, FlacOptions
+  IniRead FlacOptionsDec,   %IniFile%, Advanced, FlacOptionsDec
+  IniRead LameOptionsCBR,   %IniFile%, Advanced, LameOptionsCBR
+  IniRead LameOptionsVBR,   %IniFile%, Advanced, LameOptionsVBR
+  IniRead LameOptionsDec,   %IniFile%, Advanced, LameOptionsDec
+  IniRead OggOptions,       %IniFile%, Advanced, OggOptions
+  IniRead OggOptionsDec,    %IniFile%, Advanced, OggOptionsDec
+  IniRead FaadOptions,      %IniFile%, Advanced, FaadOptions
+  IniRead FfMpegOptionsCBR, %IniFile%, Advanced, FfMpegOptionsCBR
+  IniRead FfMpegOptionsVBR, %IniFile%, Advanced, FfMpegOptionsVBR
+  IniRead TempFolder,       %IniFile%, Advanced, TempFolder
   Transform TempFolder, Deref, %TempFolder%
   
   IniRead DebugMode,    %IniFile%, Advanced, DebugMode, 0
@@ -137,6 +139,7 @@ Init:
   OggEncLocation := TempFolder . "\oggenc.exe"
   OggDecLocation := TempFolder . "\oggdec.exe"
   FaadLocation   := TempFolder . "\faad.exe"
+  FfMpegLocation := TempFolder . "\ffmpeg.exe"
   
   ; Install encoders
   FileInstall MAC.exe, %ApeLocation%
@@ -145,6 +148,7 @@ Init:
   FileInstall oggenc.exe, %OggEncLocation%
   FileInstall oggdec.exe, %OggDecLocation%
   FileInstall faad.exe, %FaadLocation%
+  FileInstall ffmpeg.exe, %FfMpegLocation%
   
   ; Make sure we can find our command line converters
   ErrString := ""
@@ -160,6 +164,8 @@ Init:
     ErrString .= "Missing MAC.exe (" . MacLocation . ")`n"
   If( Not FileExist( FaadLocation ) )
     ErrString .= "Missing faad.exe (" . FaadLocation . ")`n"
+  If( Not FileExist( FfMpegLocation ) )
+    ErrString .= "Missing ffmpeg.exe (" . FfMpegLocation . ")`n"
     
   If( ErrString ) {
     ErrorMessage( "Some files that are required for the operation of " . NameString . " are missing.`n`n" . ErrString )
@@ -385,9 +391,11 @@ GetCommandLine( contype ) {
   Global FaadLocation, FaadOptions
   Global LameOptionsVBR, LameOptionsCBR, LameOptionsDec, EncMode, ApeCompression
   Global OggEncLocation, OggDecLocation, OggOptions, OggOptionsDec
+  Global FfMpegOptionsCBR, FfMpegOptionsVBR
   Global TmpFilename
 
   LameOptions := LameOptions%EncMode%
+  FfMpegOptions := FfMpegOptions%EncMode%
   
   ; Native
   clWAV2MP3   = "%LameLocation%" %LameOptions% "`%Filename`%" "`%NameNoExt`%.mp3"
@@ -401,11 +409,12 @@ GetCommandLine( contype ) {
   clAPE2WAV   = "%ApeLocation%" "`%Filename`%" "`%NameNoExt`%.wav" -d
   clM4A2WAV   = "%FaadLocation%" %FaadOptions% -o "`%NameNoExt`%.wav" "`%Filename`%" 
   clAAC2WAV   = "%FaadLocation%" %FaadOptions% -o "`%NameNoExt`%.wav" "`%Filename`%" 
+  clFLAC2MP3  = "%FfMpegLocation%" -i "`%Filename`%" %FfMpegOptions% "`%NameNoExt`%.mp3" 
 
   ; HYBRIDS, return two command lines and the extension of the temporary convert
   ; We could have used a combination of the above, but we want to use a file with 
   ; a temporary name for the first output (and second input)
-  clFLAC2MP3  = "%FlacLocation%" %FlacOptionsDec% "`%Filename`%" -o "%TmpFilename%.wav"`n"%LameLocation%" %LameOptions% "%TmpFilename%.wav" "`%NameNoExt`%.mp3"`nWAV
+  ; clFLAC2MP3  = "%FlacLocation%" %FlacOptionsDec% "`%Filename`%" -o "%TmpFilename%.wav"`n"%LameLocation%" %LameOptions% "%TmpFilename%.wav" "`%NameNoExt`%.mp3"`nWAV
   clFLAC2APE  = "%FlacLocation%" %FlacOptionsDec% "`%Filename`%" -o "%TmpFilename%.wav"`n"%ApeLocation%" "%TmpFilename%.wav" "`%NameNoExt`%.ape" -c%ApeCompression%`nWAV
   
   clMP32FLAC  = "%LameLocation%" %LameOptionsDec% "`%Filename`%" "%TmpFilename%.wav"`n"%FlacLocation%" %FlacOptions% "%TmpFilename%.wav" -o "`%NameNoExt`%.flac"`nWAV
