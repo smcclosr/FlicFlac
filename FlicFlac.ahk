@@ -391,7 +391,7 @@ GetCommandLine( contype ) {
   Global FaadLocation, FaadOptions
   Global LameOptionsVBR, LameOptionsCBR, LameOptionsDec, EncMode, ApeCompression
   Global OggEncLocation, OggDecLocation, OggOptions, OggOptionsDec
-  Global FfMpegOptionsCBR, FfMpegOptionsVBR
+  Global FfMpegLocation, FfMpegOptionsCBR, FfMpegOptionsVBR
   Global TmpFilename
 
   LameOptions := LameOptions%EncMode%
