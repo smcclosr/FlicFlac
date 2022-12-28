@@ -4,7 +4,9 @@ VersionString := "1.11"
 ;  FlicFlac
 ;  Tiny Portable Audio Converter (WAV MP3 FLAC OGG APE M4A AAC)
 ;  by Danny Ben Shitrit
+;  Updated by Matthew McCloskey, and Shawn McCloskey
 ;  https://github.com/DannyBen/FlicFlac
+;  https://github.com/smcclosr/FlicFlac
 ;  ---------------------------------------------------------------------------
 ; 
 ;  This is a simple utility for converting WAV, FLAC, MP3, OGG, APE, M4A
@@ -29,6 +31,9 @@ VersionString := "1.11"
 ;  - faad.exe (M4A/AAC converter)
 ;    https://www.rarewares.org/aac-decoders.php
 ;  
+;  - ffmpeg.exe
+;    https://www.gyan.dev/ffmpeg/builds/
+;
 ;  The external executables are only needed for the non compiled script. 
 ;  The compiled version of this script will swallow all external files, and will 
 ;  use them internally (from a temporary folder) as needed.
@@ -398,6 +403,8 @@ GetCommandLine( contype ) {
   FfMpegOptions := FfMpegOptions%EncMode%
   
   ; Native
+  ; Need to add -y when invoking ffmpeg otherwise the exe will ask to overwrite, 
+  ; and the overwrite check has been added to the script.
   clWAV2MP3   = "%LameLocation%" %LameOptions% "`%Filename`%" "`%NameNoExt`%.mp3"
   clWAV2OGG   = "%OggEncLocation%" %OggOptions% "`%Filename`%"
   clWAV2APE   = "%ApeLocation%" "`%Filename`%" "`%NameNoExt`%.ape" -c%ApeCompression%
@@ -409,7 +416,8 @@ GetCommandLine( contype ) {
   clAPE2WAV   = "%ApeLocation%" "`%Filename`%" "`%NameNoExt`%.wav" -d
   clM4A2WAV   = "%FaadLocation%" %FaadOptions% -o "`%NameNoExt`%.wav" "`%Filename`%" 
   clAAC2WAV   = "%FaadLocation%" %FaadOptions% -o "`%NameNoExt`%.wav" "`%Filename`%" 
-  clFLAC2MP3  = "%FfMpegLocation%" -i "`%Filename`%" %FfMpegOptions% "`%NameNoExt`%.mp3" 
+;  clFLAC2MP3  = "%FfMpegLocation%" -i "`%Filename`%" %FfMpegOptions% "`%NameNoExt`%.mp3" 
+  clFLAC2MP3  = "%FfMpegLocation%" -y -i "`%Filename`%" %FfMpegOptions% "`%NameNoExt`%.mp3" 
 
   ; HYBRIDS, return two command lines and the extension of the temporary convert
   ; We could have used a combination of the above, but we want to use a file with 
